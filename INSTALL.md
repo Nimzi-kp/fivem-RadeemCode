@@ -19,6 +19,12 @@ Before installing KP-Radeem, ensure you have the following dependencies installe
 
 ## Step 2: Configure Discord Webhooks
 
+1. Open kp_radeem.sql in your database
+2. Run the qurry one time 
+3. ensure the table's are created successfully
+   
+## Step 3: Configure Discord Webhooks
+
 1. Open `config/config.lua` in a text editor
 2. Locate the Webhooks section:
    ```lua
@@ -34,7 +40,7 @@ Before installing KP-Radeem, ensure you have the following dependencies installe
    - One for code deletion logs
 4. Copy each webhook URL and paste it into the corresponding field in the config file
 
-## Step 3: Configure Permissions
+## Step 4: Configure Permissions
 
 1. In the same `config/config.lua` file, locate the AdminGroups section:
    ```lua
@@ -47,7 +53,7 @@ Before installing KP-Radeem, ensure you have the following dependencies installe
 2. Modify this list to include the admin groups on your server that should have access to the redemption code system
 3. Add or remove groups as needed
 
-## Step 4: Customize Commands (Optional)
+## Step 5: Customize Commands (Optional)
 
 If you want to change the default commands:
 
@@ -60,7 +66,7 @@ If you want to change the default commands:
    ```
 2. Change the command names as desired
 
-## Step 5: Add to server.cfg
+## Step 6: Add to server.cfg
 
 1. Open your server's `server.cfg` file
 2. Add the following line:
@@ -69,14 +75,14 @@ If you want to change the default commands:
    ```
 3. Make sure it's placed after all the dependencies
 
-## Step 6: Start/Restart Your Server
+## Step 7: Start/Restart Your Server
 
 1. Save all changes to configuration files
 2. Start or restart your FiveM server
 3. Check the server console for any error messages
 4. Verify that the resource starts successfully
 
-## Step 7: Verify Installation
+## Step 8: Verify Installation
 
 1. Connect to your server as an admin
 2. Use the `/createradeem` command (or your custom command if changed)
