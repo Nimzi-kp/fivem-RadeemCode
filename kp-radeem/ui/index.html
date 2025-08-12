@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KP-Radeem</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+</head>
+<body>
+    <div id="app" class="container">
+        <div class="tablet" v-show="showUI">
+            <div class="tablet-header">
+                <div class="tablet-title">KP-Radeem</div>
+                <div class="tablet-close" @click="closeUI">
+                    <span class="material-icons">close</span>
+                </div>
+            </div>
+            
+            <div class="tablet-content">
+                <div class="tabs">
+                    <div class="tab" :class="{ 'active': activeTab === 'create' }" @click="activeTab = 'create'">Create New</div>
+                    <div class="tab" :class="{ 'active': activeTab === 'existing' }" @click="activeTab = 'existing'">Existing Codes</div>
+                </div>
+                
+                <!-- Create New Tab -->
+                <div class="tab-content" v-if="activeTab === 'create'">
+                    <div class="create-form">
+                        <h2>Create Redemption Code</h2>
+                        
+                        <div class="rewards-section">
+                            <h3>Rewards</h3>
+                            <div class="rewards-list">
+                                <div class="reward-item" v-for="(reward, index) in newCode.rewards" :key="index">
+                                    <div class="reward-type">{{ getRewardTypeLabel(reward) }}</div>
+                                    <div class="reward-details">{{ getRewardDetails(reward) }}</div>
+                                    <div class="reward-remove" @click="removeReward(index)">
+                                        <span class="material-icons">delete</span>
+                                    </div>
+                                </div>
+                                <div class="empty-rewards" v-if="newCode.rewards.length === 0">
+                                    No rewards added yet. Click "Add Product" to add rewards.
+                                </div>
+                            </div>
+                            
+                            <div class="add-reward">
+                                <button class="btn btn-primary" @click="showAddRewardModal = true">
+                                    <span class="material-icons">add</span> Add Product
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea id="description" v-model="newCode.description" placeholder="Enter purpose of this redemption code..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="usageLimit">Usage Limit</label>
+                            <input type="number" id="usageLimit" v-model="newCode.usageLimit" min="1" max="1000">
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button class="btn btn-success" @click="generateCode" :disabled="!canGenerateCode">
+                                <span class="material-icons">vpn_key</span> Generate Code
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Existing Codes Tab -->
+                <div class="tab-content" v-if="activeTab === 'existing'">
+                    <div class="existing-codes">
+                        <h2>Existing Redemption Codes</h2>
+                        
+                        <div class="codes-list">
+                            <div class="code-item" v-for="code in codes" :key="code.id">
+                                <div class="code-header">
+                                    <div class="code-value">{{ code.code }}</div>
+                                    <div class="code-usage">{{ code.usageCount }}/{{ code.usageLimit }} used</div>
+                                </div>
+                                <div class="code-info">
+                                    <div class="code-creator">Created by: {{ code.creator }}</div>
+                                    <div class="code-date">{{ formatDate(code.createdAt) }}</div>
+                                </div>
+                                <div class="code-actions">
+                                    <button class="btn btn-info" @click="viewCodeDetails(code)">
+                                        <span class="material-icons">info</span> Details
+                                    </button>
+                                    <button class="btn btn-danger" @click="showDeleteModal(code)">
+                                        <span class="material-icons">delete</span> Delete
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="empty-codes" v-if="codes.length === 0">
+                                No active redemption codes found.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Add Reward Modal -->
+        <div class="modal" v-if="showAddRewardModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Add Product</h3>
+                    <span class="material-icons close" @click="showAddRewardModal = false">close</span>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="rewardType">Product Type</label>
+                        <select id="rewardType" v-model="newReward.type">
+                            <option value="">Select Type</option>
+                            <option value="money">Money</option>
+                            <option value="item">Item</option>
+                            <option value="vehicle">Vehicle</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Money Type Options -->
+                    <div v-if="newReward.type === 'money'">
+                        <div class="form-group">
+                            <label for="moneyType">Money Type</label>
+                            <select id="moneyType" v-model="newReward.subtype">
+                                <option value="cash">Cash</option>
+                                <option value="bank">Bank</option>
+                                <option value="black_money">Black Money</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="moneyAmount">Amount</label>
+                            <input type="number" id="moneyAmount" v-model="newReward.amount" min="1">
+                        </div>
+                    </div>
+                    
+                    <!-- Item Options -->
+                    <div v-if="newReward.type === 'item'">
+                        <div class="form-group">
+                            <label for="itemName">Item</label>
+                            <select id="itemName" v-model="newReward.name">
+                                <option value="">Select Item</option>
+                                <option v-for="item in itemList" :value="item.name">{{ item.label }}</option>
+                                <option value="other">Other (Custom)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" v-if="newReward.name === 'other'">
+                            <label for="customItemName">Custom Item Name</label>
+                            <input type="text" id="customItemName" v-model="newReward.customName" placeholder="Enter custom item spawn code...">
+                        </div>
+                        <div class="form-group">
+                            <label for="itemAmount">Quantity</label>
+                            <input type="number" id="itemAmount" v-model="newReward.amount" min="1">
+                        </div>
+                    </div>
+                    
+                    <!-- Vehicle Options -->
+                    <div v-if="newReward.type === 'vehicle'">
+                        <div class="form-group">
+                            <label for="vehicleModel">Vehicle Model</label>
+                            <select id="vehicleModel" v-model="newReward.model">
+                                <option value="">Select Vehicle</option>
+                                <option v-for="vehicle in vehicleList" :value="vehicle.model">{{ vehicle.label }}</option>
+                                <option value="other">Other (Custom)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" v-if="newReward.model === 'other'">
+                            <label for="customVehicleModel">Custom Vehicle Model</label>
+                            <input type="text" id="customVehicleModel" v-model="newReward.customModel" placeholder="Enter custom vehicle spawn code...">
+                        </div>
+                        <div class="form-group">
+                            <label for="customPlate">Custom Plate?</label>
+                            <select id="customPlate" v-model="newReward.hasCustomPlate">
+                                <option :value="false">No</option>
+                                <option :value="true">Yes</option>
+                            </select>
+                        </div>
+                        <div class="form-group" v-if="newReward.hasCustomPlate">
+                            <label for="plateText">Plate Text (6 characters)</label>
+                            <input type="text" id="plateText" v-model="newReward.plate" maxlength="6">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @click="showAddRewardModal = false">Cancel</button>
+                    <button class="btn btn-primary" @click="addReward" :disabled="!canAddReward">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Code Details Modal -->
+        <div class="modal" v-if="showCodeDetailsModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Code Details</h3>
+                    <span class="material-icons close" @click="showCodeDetailsModal = false">close</span>
+                </div>
+                <div class="modal-body">
+                    <div class="code-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Code:</div>
+                            <div class="detail-value">{{ selectedCode.code }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Created By:</div>
+                            <div class="detail-value">{{ selectedCode.creator }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Created At:</div>
+                            <div class="detail-value">{{ formatDate(selectedCode.createdAt) }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Description:</div>
+                            <div class="detail-value">{{ selectedCode.description }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Usage:</div>
+                            <div class="detail-value">{{ selectedCode.usageCount }}/{{ selectedCode.usageLimit }}</div>
+                        </div>
+                        
+                        <h4>Rewards:</h4>
+                        <div class="rewards-details">
+                            <div class="reward-detail" v-for="(reward, index) in selectedCode.rewards" :key="index">
+                                <div class="reward-type">{{ getRewardTypeLabel(reward) }}</div>
+                                <div class="reward-details">{{ getRewardDetails(reward) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" @click="showCodeDetailsModal = false">Close</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Delete Code Modal -->
+        <div class="modal" v-if="showDeleteCodeModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Delete Redemption Code</h3>
+                    <span class="material-icons close" @click="showDeleteCodeModal = false">close</span>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete the code: <strong>{{ selectedCode.code }}</strong>?</p>
+                    <div class="form-group">
+                        <label for="deleteReason">Reason for Deletion</label>
+                        <textarea id="deleteReason" v-model="deleteReason" placeholder="Enter reason for deletion..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @click="showDeleteCodeModal = false">Cancel</button>
+                    <button class="btn btn-danger" @click="deleteCode" :disabled="!deleteReason">Confirm Delete</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Code Created Modal -->
+        <div class="modal" v-if="showCodeCreatedModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Code Created Successfully</h3>
+                    <span class="material-icons close" @click="showCodeCreatedModal = false">close</span>
+                </div>
+                <div class="modal-body">
+                    <p>Your redemption code has been created:</p>
+                    <div class="created-code">{{ createdCode }}</div>
+                    <p>Share this code with players to allow them to redeem the rewards.</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" @click="showCodeCreatedModal = false">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
