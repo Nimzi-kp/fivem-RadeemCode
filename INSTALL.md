@@ -10,9 +10,6 @@ Before installing KP-Radeem, ensure you have the following dependencies installe
 - [ox_lib](https://github.com/overextended/ox_lib) (Notification system)
 - [oxmysql](https://github.com/overextended/oxmysql) (MySQL database wrapper)
 - [ox_inventory](https://github.com/overextended/ox_inventory) (Inventory system)
-- [cd_garage](https://github.com/dsheedes/cd_garage) (Garage system)
-- [codem-banking](https://github.com/Codesign-Development/codem-banking) (Banking system)
-- [okok-chat](https://okok.tebex.io/package/4724993) (Chat system)
 
 ## Step 1: Download and Extract
 
