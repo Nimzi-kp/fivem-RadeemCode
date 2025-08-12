@@ -17,29 +17,7 @@ A comprehensive redemption code system for FiveM servers. This script allows adm
 - [ox_lib](https://github.com/overextended/ox_lib) - Notification system
 - [oxmysql](https://github.com/overextended/oxmysql) - MySQL database wrapper
 - [ox_inventory](https://github.com/overextended/ox_inventory) - Inventory system
-- [cd_garage](https://github.com/dsheedes/cd_garage) - Garage system
-- [codem-banking](https://github.com/Codesign-Development/codem-banking) - Banking system
-- [okok-chat](https://okok.tebex.io/package/4724993) - Chat system
 
-## Installation
-
-1. **Download the Resource**:
-   - Download the latest release or clone this repository.
-
-2. **Place in Resources Folder**:
-   - Extract the files to your server's resources folder.
-   - Ensure the folder is named `kp-radeem`.
-
-3. **Database Setup**:
-   - The necessary database tables will be created automatically when the resource starts.
-
-4. **Configure Webhooks**:
-   - Open `config/config.lua` and set your Discord webhook URLs for logging.
-
-5. **Add to server.cfg**:
-   ```
-   ensure kp-radeem
-   ```
 
 ## Usage
 
@@ -102,4 +80,4 @@ This resource is protected under copyright law. Unauthorized distribution, modif
 
 ## Support
 
-For support, please contact the developer through the FiveM forums or Discord.
+For support, please contact the developer through the Discord.
